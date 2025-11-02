@@ -1,5 +1,5 @@
 import sendRequest from "./sendRequest";
-const BASE_URL = "http://127.0.0.1:8000/users/";
+const BASE_URL = "/users/";
 
 // signup function
 export async function signup(formData) {
@@ -13,7 +13,6 @@ export async function signup(formData) {
   } catch (err) {
     localStorage.removeItem("token");
     console.error("Signup error:", err);
-    // إرجاع الخطأ بدلاً من null لنعرض الرسالة التفصيلية
     throw err;
   }
 }
@@ -43,7 +42,6 @@ export async function getProfile() {
     return response;
   } catch (err) {
     console.error("Error getting profile:", err);
-    // إرجاع null بدلاً من throw لإظهار رسالة الخطأ في الصفحة
     return null;
   }
 }
@@ -54,7 +52,6 @@ export async function updateProfile(formData) {
     const response = await sendRequest(`${BASE_URL}profile/`, "PUT", formData);
     return response;
   } catch (err) {
-    // إرجاع الخطأ بدلاً من null لعرض رسالة الخطأ التفصيلية
     throw err;
   }
 }

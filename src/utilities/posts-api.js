@@ -1,10 +1,10 @@
 import sendRequest from "./sendRequest";
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "/posts/";
 
 // get all posts
 export async function getPosts() {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/`, "GET");
+    const response = await sendRequest(`${BASE_URL}`, "GET");
     return response || [];
   } catch (err) {
     console.error("Error getting posts:", err);
@@ -15,7 +15,7 @@ export async function getPosts() {
 // get single post
 export async function getPost(id) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/${id}/`, "GET");
+    const response = await sendRequest(`${BASE_URL}${id}/`, "GET");
     return response;
   } catch (err) {
     console.error("Error getting post:", err);
@@ -26,7 +26,7 @@ export async function getPost(id) {
 // create new post
 export async function createPost(formData) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/`, "POST", formData);
+    const response = await sendRequest(`${BASE_URL}`, "POST", formData);
     return response;
   } catch (err) {
     console.error("Error creating post:", err);
@@ -37,7 +37,7 @@ export async function createPost(formData) {
 // update post
 export async function updatePost(id, formData) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/${id}/`, "PUT", formData);
+    const response = await sendRequest(`${BASE_URL}${id}/`, "PUT", formData);
     return response;
   } catch (err) {
     console.error("Error updating post:", err);
@@ -48,7 +48,7 @@ export async function updatePost(id, formData) {
 // delete post
 export async function deletePost(id) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/${id}/`, "DELETE");
+    const response = await sendRequest(`${BASE_URL}${id}/`, "DELETE");
     return response;
   } catch (err) {
     console.error("Error deleting post:", err);

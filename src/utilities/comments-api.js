@@ -1,10 +1,10 @@
 import sendRequest from "./sendRequest";
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "/posts/";
 
 // get comments for a post
 export async function getPostComments(postId) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/${postId}/comments/`, "GET");
+    const response = await sendRequest(`${BASE_URL}${postId}/comments/`, "GET");
     return response || [];
   } catch (err) {
     console.error("Error getting comments:", err);
@@ -15,7 +15,7 @@ export async function getPostComments(postId) {
 // create comment
 export async function createComment(postId, content) {
   try {
-    const response = await sendRequest(`${BASE_URL}/posts/${postId}/comments/`, "POST", { content });
+    const response = await sendRequest(`${BASE_URL}${postId}/comments/`, "POST", { content });
     return response;
   } catch (err) {
     console.error("Error creating comment:", err);
@@ -26,7 +26,7 @@ export async function createComment(postId, content) {
 // update comment
 export async function updateComment(commentId, content) {
   try {
-    const response = await sendRequest(`${BASE_URL}/comments/${commentId}/`, "PUT", { content });
+    const response = await sendRequest(`${BASE_URL}${commentId}/`, "PUT", { content });
     return response;
   } catch (err) {
     console.error("Error updating comment:", err);
@@ -37,7 +37,7 @@ export async function updateComment(commentId, content) {
 // delete comment
 export async function deleteComment(commentId) {
   try {
-    const response = await sendRequest(`${BASE_URL}/comments/${commentId}/`, "DELETE");
+    const response = await sendRequest(`comments/${commentId}/`, "DELETE");
     return response;
   } catch (err) {
     console.error("Error deleting comment:", err);

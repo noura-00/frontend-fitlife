@@ -1,5 +1,5 @@
 import sendRequest from "./sendRequest";
-const BASE_URL = "http://127.0.0.1:8000/workouts/";
+const BASE_URL = "/workouts/";
 
 // get all workout plans
 export async function getWorkoutPlans(goalType = null) {
