@@ -37,11 +37,12 @@ export async function updateComment(commentId, content) {
 // delete comment
 export async function deleteComment(commentId) {
   try {
-    const response = await sendRequest(`comments/${commentId}/`, "DELETE");
+    const response = await sendRequest(`/comments/${commentId}/`, "DELETE");
     return response;
   } catch (err) {
     console.error("Error deleting comment:", err);
     throw err;
   }
 }
+
 

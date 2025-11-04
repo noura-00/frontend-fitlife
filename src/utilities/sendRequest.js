@@ -20,29 +20,55 @@ export default async function sendRequest(url, method = "GET", payload = null) {
     options.headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`http://localhost:8000${url}`, options);
-
-  if (res.ok) {
-    if (res.status === 204 || method === "DELETE") {
-      return { success: true };
-    }
-    
-    const contentType = res.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return res.json();
-    }
-    
-    const text = await res.text();
-    return text ? text : { success: true };
+  const apiUrl = `http://127.0.0.1:8000/${url}`
+  
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[sendRequest] ${method} ${apiUrl}`, payload ? { payload: isFormData ? 'FormData' : payload } : '');
   }
 
-  let errorMessage = "Bad Request";
   try {
-    const errorData = await res.json();
-    errorMessage = errorData.error || errorData.detail || errorMessage;
-  } catch (e) {
-    errorMessage = `Error ${res.status}: ${res.statusText}`;
-  }
+    const res = await fetch(apiUrl, options);
 
-  throw new Error(errorMessage);
+    if (res.ok) {
+      if (res.status === 204 || method === "DELETE") {
+        return { success: true };
+      }
+      
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[sendRequest] Response:`, data);
+        }
+        return data;
+      }
+      
+      const text = await res.text();
+      return text ? text : { success: true };
+    }
+
+    let errorMessage = `Error ${res.status}: ${res.statusText}`;
+    try {
+      const errorData = await res.json();
+      errorMessage = errorData.error || errorData.detail || errorMessage;
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[sendRequest] Error response:`, errorData);
+      }
+    } catch (e) {
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[sendRequest] Error ${res.status}:`, res.statusText);
+      }
+    }
+
+    throw new Error(errorMessage);
+  } catch (err) {
+    
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      console.error('[sendRequest] Network error:', err);
+      throw new Error('Network error. Please check if the backend server is running on http://localhost:8000');
+    }
+    throw err;
+  }
 }
