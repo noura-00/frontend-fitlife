@@ -1,0 +1,253 @@
+.exercises-page-container {
+  max-width: 935px;
+  margin: 0 auto;
+  padding: 20px 20px 100px 20px;
+  min-height: 100vh;
+}
+
+.exercises-page-container h1 {
+  color: #262626;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: #666;
+  font-size: 1.2rem;
+}
+
+/* Goal Filters */
+.goal-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #dbdbdb;
+  background: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #262626;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #fafafa;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* Workout Plans Grid */
+.workout-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.workout-plan-card {
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.workout-plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.plan-header h3 {
+  margin: 0;
+  color: #262626;
+  font-size: 18px;
+  flex: 1;
+}
+
+.goal-badge {
+  background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.plan-info {
+  margin-bottom: 12px;
+}
+
+.duration {
+  color: #8e8e8e;
+  font-size: 14px;
+}
+
+.plan-preview {
+  color: #262626;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.view-plan-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid #dbdbdb;
+  border-radius: 6px;
+  color: #262626;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.view-plan-btn:hover {
+  background: #fafafa;
+}
+
+.select-plan-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: opacity 0.2s;
+}
+
+.select-plan-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.select-plan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.no-plans {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8e8e8e;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid #fcc;
+}
+
+.retry-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.retry-btn:hover {
+  opacity: 0.9;
+}
+
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #262626;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  color: #22c55e;
+}
+
+.plan-detail {
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.plan-detail h1 {
+  color: #262626;
+  margin-bottom: 20px;
+}
+
+.plan-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+.plan-description,
+.plan-equipment,
+.plan-notes {
+  margin-bottom: 25px;
+}
+
+.plan-description h3,
+.plan-equipment h3,
+.plan-notes h3 {
+  color: #262626;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.plan-description p,
+.plan-equipment p {
+  color: #262626;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.notes-content {
+  color: #262626;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #22c55e;
+}
