@@ -60,3 +60,33 @@ export async function updateProfile(formData) {
 export async function logout() {
   localStorage.removeItem("token");
 }
+
+// follow user function
+export async function followUser(userId) {
+  try {
+    const response = await sendRequest(`users/${userId}/follow/`, "POST");
+    return response;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// unfollow user function
+export async function unfollowUser(userId) {
+  try {
+    const response = await sendRequest(`users/${userId}/follow/`, "DELETE");
+    return response;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// check if following user
+export async function checkFollowing(userId) {
+  try {
+    const response = await sendRequest(`users/${userId}/follow/`, "GET");
+    return response;
+  } catch (err) {
+    throw err;
+  }
+}

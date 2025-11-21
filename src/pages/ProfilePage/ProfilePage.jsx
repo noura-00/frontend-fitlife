@@ -6,6 +6,7 @@ import * as usersAPI from "../../utilities/users-api";
 import * as postsAPI from "../../utilities/posts-api";
 import * as commentsAPI from "../../utilities/comments-api";
 import getToken from "../../utilities/getToken";
+import { getUserId } from "../../utilities/getToken";
 
 export default function ProfilePage({ user, setUser }) {
   const [profile, setProfile] = useState(null);
@@ -42,9 +43,16 @@ export default function ProfilePage({ user, setUser }) {
     goal: "",
     current_weight: "",
     target_weight: "",
+    age: "",
+    height: "",
+    show_age_public: false,
+    show_height_public: false,
+    show_fitness_info_public: false,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -61,6 +69,11 @@ export default function ProfilePage({ user, setUser }) {
           goal: profileData.goal || "",
           current_weight: profileData.current_weight || "",
           target_weight: profileData.target_weight || "",
+          age: profileData.age || "",
+          height: profileData.height || "",
+          show_age_public: profileData.show_age_public || false,
+          show_height_public: profileData.show_height_public || false,
+          show_fitness_info_public: profileData.show_fitness_info_public || false,
         });
         // Set profile picture preview if exists
         if (profileData.profile_picture) {
@@ -73,6 +86,15 @@ export default function ProfilePage({ user, setUser }) {
         }
         // Load user posts
         await loadUserPosts(profileData.username);
+        
+        // Check if current user is following this profile
+        const currentUserId = getUserId();
+        // Only check follow status if viewing another user's profile
+        if (profileData.user_id && currentUserId && parseInt(currentUserId) !== parseInt(profileData.user_id)) {
+          await checkFollowStatus(profileData.user_id);
+        } else {
+          setIsFollowing(false);
+        }
       } else {
         setError("Failed to load profile");
       }
@@ -93,6 +115,49 @@ export default function ProfilePage({ user, setUser }) {
       setPosts(userPosts);
     } catch (err) {
       console.error("Error loading user posts:", err);
+    }
+  }
+
+  async function checkFollowStatus(userId) {
+    try {
+      const response = await usersAPI.checkFollowing(userId);
+      setIsFollowing(response.is_following || false);
+    } catch (err) {
+      console.error("Error checking follow status:", err);
+      setIsFollowing(false);
+    }
+  }
+
+  async function handleFollowToggle() {
+    if (!profile || !profile.user_id) return;
+    
+    const currentUserId = getUserId();
+    // Convert both to numbers for comparison
+    if (currentUserId && profile.user_id && parseInt(currentUserId) === parseInt(profile.user_id)) {
+      // Cannot follow yourself
+      return;
+    }
+
+    try {
+      setIsFollowLoading(true);
+      let response;
+      
+      if (isFollowing) {
+        response = await usersAPI.unfollowUser(profile.user_id);
+      } else {
+        response = await usersAPI.followUser(profile.user_id);
+      }
+
+      setIsFollowing(response.is_following);
+      
+      // Reload profile to update counts
+      await loadProfile();
+      
+    } catch (err) {
+      console.error("Error toggling follow:", err);
+      setError(err.message || "Failed to update follow status");
+    } finally {
+      setIsFollowLoading(false);
     }
   }
 
@@ -374,6 +439,11 @@ export default function ProfilePage({ user, setUser }) {
         goal: formData.goal || "",
         current_weight: formData.current_weight || null,
         target_weight: formData.target_weight || null,
+        age: formData.age ? parseInt(formData.age) : null,
+        height: formData.height ? parseInt(formData.height) : null,
+        show_age_public: formData.show_age_public || false,
+        show_height_public: formData.show_height_public || false,
+        show_fitness_info_public: formData.show_fitness_info_public || false,
       };
 
       // If there's a new image, use FormData
@@ -387,6 +457,15 @@ export default function ProfilePage({ user, setUser }) {
         if (dataToSend.target_weight !== null) {
           formDataToSend.append("target_weight", dataToSend.target_weight);
         }
+        if (dataToSend.age !== null) {
+          formDataToSend.append("age", dataToSend.age);
+        }
+        if (dataToSend.height !== null) {
+          formDataToSend.append("height", dataToSend.height);
+        }
+        formDataToSend.append("show_age_public", dataToSend.show_age_public);
+        formDataToSend.append("show_height_public", dataToSend.show_height_public);
+        formDataToSend.append("show_fitness_info_public", dataToSend.show_fitness_info_public);
         formDataToSend.append("profile_picture", formData.profile_picture);
         
         console.log("Updating profile with FormData (includes image)");
@@ -494,18 +573,58 @@ export default function ProfilePage({ user, setUser }) {
             <h1 className="profile-username">{profile.username}</h1>
           </div>
 
+          {/* Stats like Instagram */}
+          <div className="profile-stats-row">
+            <div className="profile-stat-item">
+              <span className="profile-stat-number">{posts.length}</span>
+              <span className="profile-stat-label">posts</span>
+            </div>
+            <div className="profile-stat-item">
+              <span className="profile-stat-number">{profile.followers_count || 0}</span>
+              <span className="profile-stat-label">followers</span>
+            </div>
+            <div className="profile-stat-item">
+              <span className="profile-stat-number">{profile.following_count || 0}</span>
+              <span className="profile-stat-label">following</span>
+            </div>
+          </div>
+
          
           {!isEditing && (
             <div className="profile-actions-frame-right">
-              <button
-                onClick={() => setShowCreatePostModal(true)}
-                className="create-post-header-btn"
-              >
-                + New Post
-              </button>
-              <button onClick={() => setIsEditing(true)} className="edit-profile-btn">
-                Edit Profile
-              </button>
+              {(() => {
+                const currentUserId = getUserId();
+                const profileUserId = profile.user_id;
+                const isOwnProfile = currentUserId && profileUserId && parseInt(currentUserId) === parseInt(profileUserId);
+                
+                if (isOwnProfile) {
+                  // Own profile - show Edit and New Post buttons
+                  return (
+                    <>
+                      <button
+                        onClick={() => setShowCreatePostModal(true)}
+                        className="create-post-header-btn"
+                      >
+                        + New Post
+                      </button>
+                      <button onClick={() => setIsEditing(true)} className="edit-profile-btn">
+                        Edit Profile
+                      </button>
+                    </>
+                  );
+                } else {
+                  // Other user's profile - show Follow/Unfollow button
+                  return (
+                    <button
+                      onClick={handleFollowToggle}
+                      disabled={isFollowLoading}
+                      className={`follow-btn ${isFollowing ? 'following' : ''}`}
+                    >
+                      {isFollowLoading ? '...' : (isFollowing ? 'Unfollow' : 'Follow')}
+                    </button>
+                  );
+                }
+              })()}
             </div>
           )}
 
@@ -656,6 +775,75 @@ export default function ProfilePage({ user, setUser }) {
                       className="fitness-input"
                     />
                   </div>
+
+                  <div className="form-field-group">
+                    <label htmlFor="age">Age:</label>
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      min="12"
+                      max="120"
+                      placeholder="Enter your age"
+                      className="fitness-input"
+                    />
+                  </div>
+
+                  <div className="form-field-group">
+                    <label htmlFor="height">Height (cm):</label>
+                    <input
+                      type="number"
+                      id="height"
+                      name="height"
+                      value={formData.height}
+                      onChange={handleChange}
+                      min="120"
+                      max="250"
+                      placeholder="Enter your height in cm"
+                      className="fitness-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="privacy-settings">
+                  <h4>Privacy Settings</h4>
+                  <div className="privacy-toggle-group">
+                    <label className="privacy-toggle-label">
+                      <input
+                        type="checkbox"
+                        name="show_age_public"
+                        checked={formData.show_age_public}
+                        onChange={(e) => setFormData({ ...formData, show_age_public: e.target.checked })}
+                        className="privacy-checkbox"
+                      />
+                      <span>Show my age on my profile</span>
+                    </label>
+                    <label className="privacy-toggle-label">
+                      <input
+                        type="checkbox"
+                        name="show_height_public"
+                        checked={formData.show_height_public}
+                        onChange={(e) => setFormData({ ...formData, show_height_public: e.target.checked })}
+                        className="privacy-checkbox"
+                      />
+                      <span>Show my height on my profile</span>
+                    </label>
+                    <label className="privacy-toggle-label">
+                      <input
+                        type="checkbox"
+                        name="show_fitness_info_public"
+                        checked={formData.show_fitness_info_public}
+                        onChange={(e) => setFormData({ ...formData, show_fitness_info_public: e.target.checked })}
+                        className="privacy-checkbox"
+                      />
+                      <span>Show my fitness information publicly</span>
+                    </label>
+                    <p className="privacy-note">
+                      Note: Your fitness information is always accessible to the AI Assistant for personalized recommendations, regardless of this setting.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -671,6 +859,11 @@ export default function ProfilePage({ user, setUser }) {
                       goal: profile.goal || "",
                       current_weight: profile.current_weight || "",
                       target_weight: profile.target_weight || "",
+                      age: profile.age || "",
+                      height: profile.height || "",
+                      show_age_public: profile.show_age_public || false,
+                      show_height_public: profile.show_height_public || false,
+                      show_fitness_info_public: profile.show_fitness_info_public || false,
                     });
                     setProfileImagePreview(profile.profile_picture || null);
                     
@@ -697,68 +890,108 @@ export default function ProfilePage({ user, setUser }) {
                 </div>
               </div>
 
-              <div className="profile-fitness-frame">
-                <div className="profile-fitness-header">
-                  <h3>My Fitness Info</h3>
-                </div>
+              {(() => {
+                const currentUserId = getUserId();
+                const profileUserId = profile.user_id;
+                const isOwnProfile = currentUserId && profileUserId && parseInt(currentUserId) === parseInt(profileUserId);
+                const shouldShowFitnessInfo = isOwnProfile || profile.show_fitness_info_public;
                 
-                <div className="profile-fitness-content">
-                  <div className="fitness-field">
-                    <label>Goal:</label>
-                    <span className="fitness-value">
-                      {profile.goal || "Not set"}
-                    </span>
-                  </div>
-                  {(profile.current_weight || profile.target_weight) && (
-                    <div className="weight-progress-section">
-                      <div className="weight-info">
-                        <div className="weight-item">
-                          <label>Current Weight:</label>
-                          <span className="weight-value">
-                            {profile.current_weight || "Not set"}
-                          </span>
-                        </div>
-                        <div className="weight-item">
-                          <label>Target Weight:</label>
-                          <span className="weight-value">
-                            {profile.target_weight || "Not set"}
-                          </span>
+                if (!shouldShowFitnessInfo) {
+                  return (
+                    <div className="profile-fitness-frame">
+                      <div className="profile-fitness-header">
+                        <h3>My Fitness Info</h3>
+                      </div>
+                      <div className="profile-fitness-content">
+                        <div className="fitness-info-private">
+                          <p>This fitness information is private.</p>
                         </div>
                       </div>
-
-                      
-                      {profile.current_weight && profile.target_weight && (() => {
-                        const currentNum = parseFloat(String(profile.current_weight).replace(/[^\d.]/g, ''));
-                        const targetNum = parseFloat(String(profile.target_weight).replace(/[^\d.]/g, ''));
-                        const canCalculate = !isNaN(currentNum) && !isNaN(targetNum);
-                        if (!canCalculate) return null;
-                        const progress = calculateProgress(profile.current_weight, profile.target_weight, profile.goal);
-                        
-                        return (
-                          <div className="progress-bar-container">
-                            <div className="progress-bar-label">
-                              <span>Progress</span>
-                              <span className="progress-percentage">{progress}%</span>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="profile-fitness-frame">
+                    <div className="profile-fitness-header">
+                      <h3>My Fitness Info</h3>
+                    </div>
+                    
+                    <div className="profile-fitness-content">
+                      <div className="fitness-field">
+                        <label>Goal:</label>
+                        <span className="fitness-value">
+                          {profile.goal || "Not set"}
+                        </span>
+                      </div>
+                      {profile.show_age_public && profile.age && (
+                        <div className="fitness-field">
+                          <label>Age:</label>
+                          <span className="fitness-value">
+                            {profile.age}
+                          </span>
+                        </div>
+                      )}
+                      {profile.show_height_public && profile.height && (
+                        <div className="fitness-field">
+                          <label>Height:</label>
+                          <span className="fitness-value">
+                            {profile.height} cm
+                          </span>
+                        </div>
+                      )}
+                      {(profile.current_weight || profile.target_weight) && (
+                        <div className="weight-progress-section">
+                          <div className="weight-info">
+                            <div className="weight-item">
+                              <label>Current Weight:</label>
+                              <span className="weight-value">
+                                {profile.current_weight || "Not set"}
+                              </span>
                             </div>
-                            <div className="progress-bar">
-                              <div 
-                                className="progress-bar-fill"
-                                style={{ width: `${progress}%` }}
-                              ></div>
+                            <div className="weight-item">
+                              <label>Target Weight:</label>
+                              <span className="weight-value">
+                                {profile.target_weight || "Not set"}
+                              </span>
                             </div>
                           </div>
-                        );
-                      })()}
-                    </div>
-                  )}
 
-                  {!profile.current_weight && !profile.target_weight && (
-                    <div className="no-fitness-data">
-                      No fitness information set
+                          
+                          {profile.current_weight && profile.target_weight && (() => {
+                            const currentNum = parseFloat(String(profile.current_weight).replace(/[^\d.]/g, ''));
+                            const targetNum = parseFloat(String(profile.target_weight).replace(/[^\d.]/g, ''));
+                            const canCalculate = !isNaN(currentNum) && !isNaN(targetNum);
+                            if (!canCalculate) return null;
+                            const progress = calculateProgress(profile.current_weight, profile.target_weight, profile.goal);
+                            
+                            return (
+                              <div className="progress-bar-container">
+                                <div className="progress-bar-label">
+                                  <span>Progress</span>
+                                  <span className="progress-percentage">{progress}%</span>
+                                </div>
+                                <div className="progress-bar">
+                                  <div 
+                                    className="progress-bar-fill"
+                                    style={{ width: `${progress}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+
+                      {!profile.current_weight && !profile.target_weight && (
+                        <div className="no-fitness-data">
+                          No fitness information set
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                );
+              })()}
             </>
           )}
         </div>

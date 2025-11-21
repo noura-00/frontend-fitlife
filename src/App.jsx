@@ -3,10 +3,10 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav/BottomNav";
 import HomePage from "./pages/HomePage/HomePage";
 import SignupPage from "./pages/SignupPage/SignupPage";
-import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import PostsPage from "./pages/PostsPage/PostsPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import ExercisesPage from "./pages/ExercisesPage/ExercisesPage";
+import AIChat from "./pages/AIChat/AIChat";
 import getToken from "./utilities/getToken";
 
 function App() {
@@ -23,10 +23,10 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage user={user} setUser={setUser} />} />
         <Route path="/signup" element={<SignupPage setUser={setUser} />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/posts" element={<PostsPage user={user} />} />
         <Route path="/exercises" element={<ExercisesPage />} />
         <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} />} />
+        <Route path="/ai" element={<AIChat />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {showBottomNav && <BottomNav setUser={setUser} />}

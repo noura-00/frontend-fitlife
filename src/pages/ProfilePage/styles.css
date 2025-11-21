@@ -121,6 +121,35 @@
   margin-bottom: 0;
 }
 
+.profile-stats-row {
+  display: flex;
+  gap: 30px;
+  margin: 12px 0;
+  padding: 0;
+}
+
+.profile-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: default;
+}
+
+.profile-stat-number {
+  font-weight: 600;
+  font-size: 16px;
+  color: #262626;
+  line-height: 1.2;
+}
+
+.profile-stat-label {
+  font-size: 14px;
+  color: #8e8e8e;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
 .profile-actions-frame-right {
   position: absolute;
   top: 15px;
@@ -149,6 +178,39 @@
 
 .create-post-header-btn:hover {
   opacity: 0.9;
+}
+
+.follow-btn {
+  background: #0095f6;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 90px;
+}
+
+.follow-btn:hover:not(:disabled) {
+  background: #1877f2;
+}
+
+.follow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.follow-btn.following {
+  background: #efefef;
+  color: #262626;
+  border: 1px solid #dbdbdb;
+}
+
+.follow-btn.following:hover:not(:disabled) {
+  background: #dbdbdb;
+  color: #000;
 }
 
 .profile-username {
@@ -317,6 +379,21 @@
   font-style: italic;
 }
 
+.fitness-info-private {
+  padding: 30px 20px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  border: 1px dashed #dbdbdb;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.fitness-info-private p {
+  margin: 0;
+  font-size: 14px;
+}
+
 
 .profile-bio-frame-edit {
   margin-bottom: 12px;
@@ -354,6 +431,51 @@
   font-size: 11px;
   font-weight: 600;
   color: #262626;
+}
+
+.privacy-settings {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.privacy-settings h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.privacy-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.privacy-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #262626;
+}
+
+.privacy-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #9b59b6;
+}
+
+.privacy-note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #8e8e8e;
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .fitness-input {

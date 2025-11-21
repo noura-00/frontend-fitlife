@@ -36,6 +36,13 @@ export default function BottomNav({ setUser }) {
       </Link>
       
       <Link 
+        to="/ai" 
+        className={`nav-item ${location.pathname === '/ai' ? 'active' : ''}`}
+      >
+        <span className="nav-label">AI Assistant</span>
+      </Link>
+      
+      <Link 
         to="/profile" 
         className={`nav-item ${location.pathname === '/profile' ? 'active' : ''}`}
       >

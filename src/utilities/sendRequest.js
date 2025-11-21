@@ -49,20 +49,22 @@ export default async function sendRequest(url, method = "GET", payload = null) {
     }
 
     let errorMessage = `Error ${res.status}: ${res.statusText}`;
+    let errorData = null;
     try {
-      const errorData = await res.json();
+      errorData = await res.json();
       errorMessage = errorData.error || errorData.detail || errorMessage;
       if (process.env.NODE_ENV === 'development') {
         console.error(`[sendRequest] Error response:`, errorData);
       }
     } catch (e) {
-      
       if (process.env.NODE_ENV === 'development') {
         console.error(`[sendRequest] Error ${res.status}:`, res.statusText);
       }
     }
 
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage);
+    error.response = { data: errorData, status: res.status, statusText: res.statusText };
+    throw error;
   } catch (err) {
     
     if (err instanceof TypeError && err.message.includes('fetch')) {
